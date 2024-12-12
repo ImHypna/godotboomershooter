@@ -192,12 +192,14 @@ layout_mode = 2
 
 [node name="PlayerStateMachine" type="Node" parent="." node_paths=PackedStringArray("CURRENT_STATE")]
 script = ExtResource("6_xnv8t")
-CURRENT_STATE = NodePath("WalkingState")
+CURRENT_STATE = NodePath("IdleState")
 
 [node name="IdleState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("7_pns7n")
 
 [node name="WalkingState" type="Node" parent="PlayerStateMachine"]
 script = ExtResource("8_t6egv")
+
+[node name="JumpingState" type="Node" parent="PlayerStateMachine"]
 
 [connection signal="animation_started" from="AnimationPlayer" to="." method="_on_animation_player_animation_started"]
