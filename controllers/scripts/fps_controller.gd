@@ -3,12 +3,15 @@ extends CharacterBody3D
 @export var SPEED_DEFAULT : float = 5.0
 @export var JUMP_VELOCITY : float = 4.5
 @export var MOUSE_SENSITIVITY : float = 0.5
+@export var SPEED_SPRINT: float = 7.0
 @export_range(5,10,0.1)	var CROUCH_SPEED: float = 2.0
 @export var TILT_LOWER_LIMIT := deg_to_rad(-90.0)
 @export var TILT_UPPER_LIMIT := deg_to_rad(90.0)
 @export var CROUCH_SHAPECAST: Node3D
 @export var CAMERA_CONTROLLER : Camera3D
 @export var ANIMATION_PLAYER : AnimationPlayer
+@export var ACCELERATION: float =  0.1
+@export var DECCELERATION: float =  0.2
 
 var _speed: float = 5.0
 var _mouse_input : bool = false
@@ -17,6 +20,15 @@ var _tilt_input : float
 var _mouse_rotation : Vector3
 var _player_rotation : Vector3
 var _camera_rotation : Vector3
+
+# Configurações do Dash
+var dash_speed: float = 30.0   # Velocidade do dash
+var dash_duration: float = 0.2  # Duração do dash em segundos
+var dash_cooldown: float = 1.0  # Tempo de recarga para usar o dash
+var can_dash: bool = true      # Controle para verificar se o dash está disponível
+
+# Controle interno
+var dash_direction: Vector3 = Vector3.ZERO
 
 
 var _is_crouching : bool = false
@@ -69,6 +81,7 @@ func _ready():
 
 func _physics_process(delta):
 	Global.debug.add_property("Movement Speed",_speed,-1)
+	Global.debug.add_property("Acceleration",velocity.x,2)
 	_update_camera(delta)
 	
 	# Add the gravity.
@@ -84,13 +97,13 @@ func _physics_process(delta):
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
+	#TODO
 	if direction:
-		velocity.x = direction.x * _speed
-		velocity.z = direction.z * _speed
+		velocity.x = lerp(velocity.x,direction.x * _speed,ACCELERATION)
+		velocity.z = lerp(velocity.z,direction.z * _speed,ACCELERATION)
 	else:
-		velocity.x = move_toward(velocity.x, 0, _speed)
-		velocity.z = move_toward(velocity.z, 0, _speed)
+		velocity.x = move_toward(velocity.x, 0, DECCELERATION)
+		velocity.z = move_toward(velocity.z, 0, DECCELERATION)
 
 	move_and_slide()
 
@@ -113,3 +126,5 @@ func set_movement_speed(state:String):
 
 func _on_animation_player_animation_started(anim_name:StringName) -> void:
 	_is_crouching = !_is_crouching
+
+
